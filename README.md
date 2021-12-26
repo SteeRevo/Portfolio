@@ -1,7 +1,7 @@
 # Portfolio
 Portfolio of coding examples from Ethan Nguyen
 
-# Basic Game Level 
+## Basic Game Level 
 Made in Godot using online resources
 
 # Big Integer Test
