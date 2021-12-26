@@ -5,4 +5,4 @@ Portfolio of coding examples from Ethan Nguyen
 made in Godot using online resources
 
 #Big Integer Test
-Coding assignment homework in C++
+Coding assignment homework in C
