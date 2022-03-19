@@ -1,0 +1,106 @@
+# Lab 3 Skeleton
+#
+# Based on of_tutorial by James McCauley
+
+from pox.core import core
+import pox.openflow.libopenflow_01 as of
+
+log = core.getLogger()
+
+class Firewall (object):
+  """
+  A Firewall object is created for each switch that connects.
+  A Connection object for that switch is passed to the __init__ function.
+  """
+  def __init__ (self, connection):
+    # Keep track of the connection to the switch so that we can
+    # send it messages!
+    self.connection = connection
+
+    # This binds our PacketIn event listener
+    connection.addListeners(self)
+
+  def do_firewall (self, packet, packet_in):
+    # The code in here will be executed for every packet.
+    ip = packet.find('ipv4')
+    tcp = packet.find('tcp')
+    arp = packet.find('arp')
+    icmp = packet.find("icmp")
+    udp = packet.find("udp")
+
+    can_send = False
+
+    if arp:
+      can_send = True
+      print("arp")
+
+    elif icmp:
+      can_send = True
+      print("icmp")
+  
+    elif tcp:
+      print("tcp")
+      if ip.srcip == "20.1.1.10" and ip.dstip == "20.1.1.55":
+        can_send = True
+        print("sent packet")
+      elif ip.srcip == "20.1.1.55" and ip.dstip == "20.1.1.10":
+        can_send = True
+        print("sent packet")
+      elif ip.srcip == "20.1.1.11" and ip.dstip == "20.1.1.55":
+        can_send = True
+        print("sent packet")
+      elif ip.srcip == "20.1.1.55" and ip.dstip == "20.1.1.11":
+        can_send = True
+        print("sent packet")
+      elif ip.srcip == "20.1.1.55" and ip.dstip == "20.1.1.30":
+        can_send = True
+        print("sent packet")
+      elif ip.srcip == "20.1.1.55" and ip.dstip == "20.1.1.31":
+        can_send = True
+        print("sent packet")
+      elif ip.srcip == "20.1.1.31" and ip.dstip == "20.1.1.55":
+        can_send = True
+        print("sent packet")
+
+    if udp:
+      can_send = False
+
+    
+
+    msg = of.ofp_flow_mod()
+    msg.match = of.ofp_match.from_packet(packet)
+    msg.idle_timeout = 50
+    msg.hard_timeout = 50
+    msg.priority = 1
+    msg.buffer_id = packet_in.buffer_id
+    if can_send == True:
+      msg.actions.append(of.ofp_action_output(port=of.OFPP_FLOOD))
+    self.connection.send(msg)
+
+    
+    
+      
+
+
+
+  def _handle_PacketIn (self, event):
+    """
+    Handles packet in messages from the switch.
+    """
+
+    packet = event.parsed # This is the parsed packet data.
+    if not packet.parsed:
+      log.warning("Ignoring incomplete packet")
+      return
+
+    packet_in = event.ofp # The actual ofp_packet_in message.
+    self.do_firewall(packet, packet_in)
+
+def launch ():
+  """
+  Starts the component
+  """
+  def start_switch (event):
+    log.debug("Controlling %s" % (event.connection,))
+    Firewall(event.connection)
+  core.openflow.addListenerByName("ConnectionUp", start_switch)
