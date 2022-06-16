@@ -1,0 +1,201 @@
+[gd_scene load_steps=31 format=2]
+
+[ext_resource path="res://LevelAssets/Gun.tscn" type="PackedScene" id=1]
+[ext_resource path="res://Player/Cowboy.png" type="Texture" id=2]
+[ext_resource path="res://white_shader.gdshader" type="Shader" id=3]
+[ext_resource path="res://Player/PlayerMovement.gd" type="Script" id=4]
+[ext_resource path="res://Player/cowboy_runcycle2.png" type="Texture" id=5]
+[ext_resource path="res://Player/cowboy_runcycle1.png" type="Texture" id=6]
+[ext_resource path="res://Player/cowboy_runcycle3.png" type="Texture" id=7]
+[ext_resource path="res://Player/cowboy_runcycle5.png" type="Texture" id=8]
+[ext_resource path="res://Player/cowboy_runcycle6.png" type="Texture" id=9]
+[ext_resource path="res://Player/cowboy_runcycle4.png" type="Texture" id=10]
+[ext_resource path="res://Assets/SFX/Gunshot.ogg" type="AudioStream" id=11]
+[ext_resource path="res://Assets/SFX/Jump.ogg" type="AudioStream" id=12]
+[ext_resource path="res://Assets/SFX/Land.ogg" type="AudioStream" id=13]
+[ext_resource path="res://Assets/SFX/Footstep1.ogg" type="AudioStream" id=14]
+[ext_resource path="res://Assets/SFX/PlayerHit.ogg" type="AudioStream" id=15]
+[ext_resource path="res://Assets/SFX/Footstep3.ogg" type="AudioStream" id=16]
+[ext_resource path="res://Assets/SFX/Footstep4.ogg" type="AudioStream" id=17]
+[ext_resource path="res://Assets/SFX/Footstep2.ogg" type="AudioStream" id=18]
+[ext_resource path="res://Assets/SFX/Footstep5.ogg" type="AudioStream" id=19]
+[ext_resource path="res://Assets/SFX/Footstep6.ogg" type="AudioStream" id=20]
+[ext_resource path="res://Assets/SFX/Footstep8.ogg" type="AudioStream" id=21]
+[ext_resource path="res://Assets/SFX/Footstep7.ogg" type="AudioStream" id=22]
+
+[sub_resource type="ShaderMaterial" id=1]
+shader = ExtResource( 3 )
+shader_param/active = true
+
+[sub_resource type="RectangleShape2D" id=2]
+extents = Vector2( 3.19264, 12.5 )
+
+[sub_resource type="ShaderMaterial" id=3]
+shader = ExtResource( 3 )
+shader_param/active = false
+
+[sub_resource type="SpriteFrames" id=4]
+animations = [ {
+"frames": [ ExtResource( 2 ) ],
+"loop": true,
+"name": "idle",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 6 ), ExtResource( 5 ), ExtResource( 7 ), ExtResource( 10 ), ExtResource( 8 ), ExtResource( 9 ) ],
+"loop": true,
+"name": "run",
+"speed": 10.0
+} ]
+
+[sub_resource type="CapsuleShape2D" id=5]
+radius = 6.5
+height = 12.0
+
+[sub_resource type="Animation" id=6]
+length = 0.2
+tracks/0/type = "value"
+tracks/0/path = NodePath("AnimatedSprite:material:shader_param/active")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.1 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 1,
+"values": [ true, false ]
+}
+
+[sub_resource type="Animation" id=7]
+resource_name = "Stop"
+length = 0.2
+tracks/0/type = "value"
+tracks/0/path = NodePath("AnimatedSprite:material:shader_param/active")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ false ]
+}
+
+[sub_resource type="CapsuleShape2D" id=8]
+radius = 9.0
+height = 12.0
+
+[node name="Player" type="KinematicBody2D"]
+position = Vector2( 35.0115, 143.331 )
+z_index = -1
+script = ExtResource( 4 )
+
+[node name="Sprite" type="Sprite" parent="."]
+visible = false
+material = SubResource( 1 )
+position = Vector2( -5.96139, -1.76228 )
+scale = Vector2( 0.429688, 0.429688 )
+texture = ExtResource( 2 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2( -6.88092, -0.830994 )
+shape = SubResource( 2 )
+
+[node name="Gun" parent="." instance=ExtResource( 1 )]
+position = Vector2( 1.9885, 0.669006 )
+
+[node name="Gunshot" type="AudioStreamPlayer" parent="Gun"]
+stream = ExtResource( 11 )
+volume_db = -15.731
+bus = "SFX"
+
+[node name="AnimatedSprite" type="AnimatedSprite" parent="."]
+material = SubResource( 3 )
+position = Vector2( -6.0115, -2.33099 )
+scale = Vector2( 0.429688, 0.429688 )
+z_as_relative = false
+frames = SubResource( 4 )
+animation = "run"
+frame = 2
+
+[node name="VisibilityNotifier2D" type="VisibilityNotifier2D" parent="."]
+position = Vector2( -6.8651, -2.09193 )
+
+[node name="Hurtbox" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
+position = Vector2( -6.5115, -0.830994 )
+shape = SubResource( 5 )
+
+[node name="HitflashAnimation" type="AnimationPlayer" parent="."]
+anims/Start = SubResource( 6 )
+anims/Stop = SubResource( 7 )
+
+[node name="Triggerbox" type="Area2D" parent="."]
+collision_layer = 4
+collision_mask = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Triggerbox"]
+position = Vector2( -6.0115, -2.33099 )
+shape = SubResource( 8 )
+
+[node name="Jump" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 12 )
+volume_db = -12.235
+bus = "SFX"
+
+[node name="Land" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 13 )
+volume_db = -13.109
+bus = "SFX"
+
+[node name="PlayerHit" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 15 )
+volume_db = -9.613
+bus = "SFX"
+
+[node name="Footsteps" type="Node" parent="."]
+
+[node name="Footsteps" type="AudioStreamPlayer" parent="Footsteps"]
+stream = ExtResource( 14 )
+volume_db = -13.983
+bus = "SFX"
+
+[node name="Footsteps2" type="AudioStreamPlayer" parent="Footsteps"]
+stream = ExtResource( 18 )
+volume_db = -13.983
+bus = "SFX"
+
+[node name="Footsteps3" type="AudioStreamPlayer" parent="Footsteps"]
+stream = ExtResource( 16 )
+volume_db = -14.857
+bus = "SFX"
+
+[node name="Footsteps4" type="AudioStreamPlayer" parent="Footsteps"]
+stream = ExtResource( 17 )
+volume_db = -14.857
+bus = "SFX"
+
+[node name="Footsteps5" type="AudioStreamPlayer" parent="Footsteps"]
+stream = ExtResource( 19 )
+volume_db = -14.857
+bus = "SFX"
+
+[node name="Footsteps6" type="AudioStreamPlayer" parent="Footsteps"]
+stream = ExtResource( 20 )
+volume_db = -14.857
+bus = "SFX"
+
+[node name="Footsteps7" type="AudioStreamPlayer" parent="Footsteps"]
+stream = ExtResource( 22 )
+volume_db = -14.857
+bus = "SFX"
+
+[node name="Footsteps8" type="AudioStreamPlayer" parent="Footsteps"]
+stream = ExtResource( 21 )
+volume_db = -15.731
+bus = "SFX"
+
+[connection signal="screen_exited" from="VisibilityNotifier2D" to="." method="_on_VisibilityNotifier2D_screen_exited"]
+[connection signal="area_entered" from="Hurtbox" to="." method="_on_Area2D_area_entered"]
